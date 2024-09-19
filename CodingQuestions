@@ -1,0 +1,406 @@
+Question #1:
+
+select DEPARTMENT, count(EMP_ID) as EMPLOYEECOUNT
+FROM employee
+GROUP BY DEPARTMENT
+HAVING sum(SALARY) >15000
+order by EMPLOYEECOUNT DESC
+
+----------------------------------------------------------------
+Question #2:
+
+SELECT 
+    d.DepartmentName,
+    MAX(p.UnitPrice) as MostExpensiveProduct
+FROM 
+    Department d
+LEFT JOIN 
+    Product p ON d.ID = p.DepartmentID
+GROUP BY 
+    d.DepartmentName
+ORDER BY 
+    d.DepartmentName;
+--------------------------------------------------------------------------
+Question #3:
+
+Date,Description,TransactionAmount
+2023-10-01,Fuel,30.0
+2023-10-10,Fuel,41.0
+2023-10-31,Fuel,35.0
+
+-------------------------
+import pandas as pd
+
+df = pd.read_csv('fueltrxdata.csv')
+df['avg'] = df.mean(axis=1)
+print(df)
+----------------------
+import csv
+
+def calculate_average_transaction(file_path):
+    total_amount = 0.0
+    transaction_count = 0
+
+    with open(file_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            transaction_amount = float(row['TransactionAmount'])
+            total_amount += transaction_amount
+            transaction_count += 1
+
+    if transaction_count == 0:
+        return 0.0  # Avoid division by zero if there are no transactions
+
+    average = total_amount / transaction_count
+    return average
+
+-------------------------------------------
+Q. If this file were to be saved in a GCS bucket, how could you access it from BigQuery?
+
+To access a CSV file saved in a Google Cloud Storage (GCS) bucket from BigQuery, I can create an external table in BigQuery that references the data in the bucket: 
+In the Create table panel, select Google Cloud Storage in the Create table from list. 
+Select a file from the bucket or enter the Cloud Storage URI. The Cloud Storage URI includes the bucket name and the object (filename).
+if the bucket name is mybucket and the file name is fueltrxdata.csv, the URI would be gs://mybucket/fueltrxdata.csv. 
+In the Destination section, specify the dataset and table name. 
+In the Schema section, you can either enable schema auto-detection or manually specify a schema. 
+Click Create table. 
+Query the data. 
+
+--------------------------------------------------------------------------------------------------
+Question #4:
+
+lst = [1, 2, 3, 4]
+
+squared_lst = [x**2 for x in lst]
+print(squared_lst)
+
+------------------
+ def square(lst):
+    return [i ** 2 for i in lst]
+
+-----------------
+Or we can map it:
+
+def square(lst):
+    return map(lambda x: x ** 2, lst)
+
+-------------------
+def square(lst):
+    ret = []
+    for i in lst:
+        ret.append(i ** 2)
+    return ret
+----------------------------------------------------------------------------------
+Question #5:
+
+def has_duplicates(nums):
+    return len(nums) != len(set(nums))
+------------------------
+ 
+def check_duplicates(arr):
+    seen = set()
+    for num in arr:
+        if num in seen:
+            return True
+        seen.add(num)
+    return False
+
+if __name__ == "__main__":
+    arr = [7, 8, 9, 7]
+    print(check_duplicates(arr))
+
+------------------------
+
+def check_duplicates(arr):
+    n = len(arr)
+    
+    # Outer loop to pick each element one by one
+    for i in range(n - 1):
+      
+        # Inner loop to compare the current element with the 
+        # rest of the elements
+        for j in range(i + 1, n):
+          
+            # If a duplicate is found return True
+            if arr[i] == arr[j]:
+                return True 
+    
+    # If no duplicates are found, return False
+    return False
+
+if __name__ == "__main__":
+    arr = [7, 8, 9, 7]
+    print(check_duplicates(arr))
+---------------------------------------------------------------------------------------------
+Question #6:
+
+def calcSumOfSquares(n: List[Int]): Int = {
+  var sum = 0
+  for (num <- n) {
+    val square = num * num // Defined square as val
+    sum += square
+  }
+  sum // Return sum
+}
+-----------------------------------------------------------------------------------
+
+Question #7:
+
+Using Loop :
+
+def sumOfNaturalNums(n: Int): Int = {
+  var sum = 0
+  for (i <- 1 to n) {
+    sum = sum + i
+  }
+  sum
+} 
+---------------------
+Recursive Solution :
+
+def sumOfNaturalNums(n: Int): Int = {
+  if (n <= 0) 0
+  else n + sumOfNaturalNums(n - 1)
+}
+
+print("Kindly enter any positive natural number: ")
+val input = scala.io.StdIn.readInt()
+
+println("The Sum of given natural number is: " + sumOfNaturalNums(input))
+--
+---------------------
+
+def sumOfNaturalNums(n: Int): Int = {
+  if (n <= 0) {
+    println("Enter a positive natural number")
+    0  // Return 0 in case of invalid input
+  } else {
+    (n * (n + 1)) / 2  // Sum of first N natural numbers formula
+  }
+}
+
+print("Kindly enter any natural number: ")
+val input = scala.io.StdIn.readInt()
+
+println("The Sum of N natural numbers is: " + sumOfNaturalNums(input))
+
+-----------------------------------------------------------------------------------------------------------
+
+
+Q No-8 
+Designing a cloud-based ETL/ELT data pipeline in Google Cloud Platform (GCP) involves selecting appropriate services that fits good with the business requirements. Here’s a high-level overview of the GCP services that can be used in this pipeline:
+
+1. Data Extraction
+Google Cloud Storage (GCS): Initially, the CSV files containing the source data would be stored in a GCS bucket. You could use GCS as a staging area for the raw data extracted from the legacy database.
+Google Cloud Functions or Cloud Run: These can be used to create serverless functions that trigger the extraction process from the legacy database. This could be set up to run nightly to fetch the latest data.
+2. Data Transformation
+Google Cloud Dataflow: This fully managed service is ideal for data processing and transformation. It can be used to filter, join, and transform the raw CSV data into the desired output format. Dataflow supports Apache Beam, allowing for complex transformations and real-time processing if needed in the future.
+Google Cloud Dataprep: For more interactive and visual data preparation, Dataprep can be utilized. It provides a user-friendly interface for data cleaning and transformation.
+3. Data Loading
+Google BigQuery: The transformed data can be loaded into BigQuery. It’s optimized for analytics and allows for efficient querying of large datasets.
+BigQuery Data Transfer Service: If there are specific schedules for loading data into BigQuery, this service can automate the loading of data from GCS to BigQuery.
+4. Data Archiving
+Google Cloud Storage (GCS): Both the raw source data and the transformed output data should be archived in GCS. You can organize them in directories partitioned by export date for easy access and management.
+Bucket Structure: You might structure the buckets like gs://your-bucket/raw_data/YYYY-MM-DD/ and gs://your-bucket/transformed_data/YYYY-MM-DD/.
+5. Monitoring and Management
+Google Cloud Logging and Monitoring: Use these services to monitor the ETL pipeline, track errors, and ensure that the jobs run successfully.
+Google Cloud Pub/Sub: If you need to notify downstream systems or teams when the data is ready, Pub/Sub can facilitate event-driven architecture.
+6. Security and Access Control
+Identity and Access Management (IAM): Ensure that appropriate permissions are set for each GCP service, restricting access based on roles to maintain security.
+
+By leveraging these GCP services, we can build a robust, scalable ETL/ELT data pipeline that meets the needs of the business for analytics and reporting. This architecture supports batch processing while allowing for future enhancements if real-time data processing becomes necessary.
+
+
+--------------------------------------------
+Question #9:
+
+WITH LatestRedemptions AS (
+  SELECT
+    retailerId,
+    redemptionDate,
+    MAX(createDateTime) AS latestCreateDateTime
+  FROM
+    `your_project.your_dataset.tblRedemptions-ByDay`
+  WHERE
+    retailerId = 300
+    AND redemptionDate BETWEEN '2023-10-30' AND '2023-11-05'
+  GROUP BY
+    retailerId, redemptionDate
+)
+SELECT
+  rbd.redemptionDate,
+  rbd.redemptionCount,
+  rbd.createDateTime
+FROM
+  `your_project.your_dataset.tblRedemptions-ByDay` rbd
+JOIN
+  LatestRedemptions lr
+  ON rbd.retailerId = lr.retailerId
+  AND rbd.redemptionDate = lr.redemptionDate
+  AND rbd.createDateTime = lr.latestCreateDateTime
+ORDER BY
+  rbd.redemptionDate;
+---------------------------------------
+
+1. Which date had the least number of redemptions and what was the redemption count?
+
+Date: 2023-11-05
+Redemption count: 3702
+
+2. Which date had the most number of redemptions and what was the redemption count?
+Date: 2023-11-04
+Redemption count: 5224
+
+3. What was the createDateTime for each redemptionCount in questions 1 and 2?
+
+For 2023-11-05 (Least redemptions): 2023-11-06 11:00:00 UTC
+For 2023-11-04 (Most redemptions): 2023-11-05 11:00:00 UTC
+
+4. Is there another method you can use to pull back the most recent redemption count, by redemption date, for the date range 2023-10-30 to 2023-11-05, for retailer "ABC Store"?
+
+Yes, another approach is to use a window function like ROW_NUMBER() to rank rows based on createDateTime and select the row with the highest rank per redemption date.
+----------
+SELECT
+  retailerId,
+  redemptionDate,
+  redemptionCount,
+  createDateTime
+FROM (
+  SELECT
+    retailerId,
+    redemptionDate,
+    redemptionCount,
+    createDateTime,
+    ROW_NUMBER() OVER (PARTITION BY retailerId, redemptionDate ORDER BY createDateTime DESC) AS rk
+  FROM
+    `your_project.your_dataset.tblRedemptions-ByDay`
+  WHERE
+    retailerId = 300
+    AND redemptionDate BETWEEN '2023-10-30' AND '2023-11-05'
+)
+WHERE rk = 1
+ORDER BY redemptionDate;
+
+---------------------------------------------------------------------------------
+
+Question #10:
+
+Designing a database model for a pharmacy chain system requires careful consideration of the various entities and their relationships. We can assume the system handles critical operations such as managing inventory, tracking sales, managing customer and employee information, and possibly even healthcare-related records (e.g., prescriptions, medications). Below are the core elements of the initial design:
+
+A. Entities (Tables) and Attributes
+
+1) Pharmacy (Stores)
+Attributes:
+pharmacy_id (Primary Key, Integer): Unique identifier for each pharmacy.
+name (String): Name of the pharmacy.
+location (String): Address or region.
+phone_number (String): Contact number for the pharmacy.
+opening_hours (String): Hours of operation.
+
+2) Inventory
+Attributes:
+inventory_id (Primary Key, Integer): Unique identifier for inventory items.
+pharmacy_id (Foreign Key): The pharmacy to which the inventory belongs.
+product_id (Foreign Key): Identifier of the product (links to a Product table).
+quantity (Integer): Number of units available.
+expiration_date (Date): Expiration date of the product (especially for medications).
+stock_status (String): Status of the stock (e.g., in stock, low, out of stock).
+
+3) Product
+Attributes:
+product_id (Primary Key, Integer): Unique identifier for each product.
+name (String): Name of the product (e.g., medication name).
+description (String): Description of the product.
+category (String): Category of the product (e.g., medication, over-the-counter, cosmetic).
+price (Decimal): Price of the product.
+manufacturer (String): Manufacturer of the product.
+
+4) Sales/Transactions
+Attributes:
+transaction_id (Primary Key, Integer): Unique identifier for each sale.
+pharmacy_id (Foreign Key): Pharmacy where the transaction took place.
+product_id (Foreign Key): Product sold in the transaction.
+customer_id (Foreign Key): Identifier of the customer (links to the Customer table).
+employee_id (Foreign Key): Employee who handled the transaction.
+date (Timestamp): Date and time of the transaction.
+quantity_sold (Integer): Number of units sold.
+total_price (Decimal): Total price of the transaction.
+payment_method (String): Payment method used (e.g., credit card, cash).
+
+5) Customer
+Attributes:
+customer_id (Primary Key, Integer): Unique identifier for each customer.
+name (String): Customer’s full name.
+phone_number (String): Contact number of the customer.
+email (String): Email address for communication.
+address (String): Physical address of the customer.
+date_of_birth (Date): Customer’s date of birth.
+
+6) Employee
+Attributes:
+employee_id (Primary Key, Integer): Unique identifier for each employee.
+pharmacy_id (Foreign Key): The pharmacy where the employee works.
+name (String): Employee’s full name.
+position (String): Role/position of the employee (e.g., cashier, pharmacist).
+phone_number (String): Contact number of the employee.
+email (String): Work email address.
+hire_date (Date): Date the employee was hired.
+
+7) Prescription
+Attributes:
+prescription_id (Primary Key, Integer): Unique identifier for each prescription.
+customer_id (Foreign Key): Customer for whom the prescription is written.
+doctor_id (Foreign Key): Doctor who issued the prescription.
+pharmacy_id (Foreign Key): Pharmacy where the prescription is filled.
+date_issued (Date): Date the prescription was issued.
+medication_id (Foreign Key): Link to the Product table for the medication prescribed.
+dosage (String): Dosage instructions.
+refill_count (Integer): Number of allowed refills.
+
+8) Doctor
+Attributes:
+doctor_id (Primary Key, Integer): Unique identifier for each doctor.
+name (String): Doctor’s full name.
+phone_number (String): Doctor’s contact number.
+specialization (String): Area of specialization (e.g., cardiologist).
+license_number (String): Medical license number.
+
+B) Relationships (Foreign Keys and Constraints)
+Pharmacy and Inventory: One-to-many relationship; each pharmacy can have multiple inventory items (pharmacy_id in Inventory table references pharmacy_id in Pharmacy table).
+Product and Inventory: One-to-many relationship; each product can appear in multiple pharmacies' inventory (product_id in Inventory table references product_id in Product table).
+Pharmacy and Sales: One-to-many relationship; a pharmacy can have multiple sales transactions (pharmacy_id in Sales table).
+Customer and Sales: One-to-many relationship; a customer can make multiple purchases (customer_id in Sales table).
+Employee and Sales: One-to-many relationship; an employee can be involved in multiple transactions (employee_id in Sales table).
+Customer and Prescription: One-to-many relationship; a customer can have multiple prescriptions (customer_id in Prescription table).
+Product and Prescription: One-to-many relationship; a prescription can contain only one product but can appear in multiple prescriptions.
+Doctor and Prescription: One-to-many relationship; a doctor can issue multiple prescriptions.
+
+C) Data Types
+Integer: For IDs, quantities, and counts (e.g., customer_id, quantity_sold).
+String: For names, descriptions, and other textual data (e.g., name, phone_number).
+Decimal: For currency (e.g., price, total_price).
+Date/Timestamp: For dates and times (e.g., date_of_birth, date_issued, hire_date).
+
+D) Constraints
+Primary Keys: Ensure unique identification of entities (e.g., customer_id, product_id).
+Foreign Keys: Maintain relationships and data integrity across tables (e.g., pharmacy_id in the Inventory table).
+Unique Constraints: For fields that require uniqueness, such as email addresses or medical license numbers (email, license_number).
+Not Null Constraints: For mandatory fields like name, price, etc.
+Check Constraints: For validation, such as checking that the quantity in inventory or the refill_count is non-negative.
+
+E) Metadata and Audit Information
+Audit Tables: For tracking modifications to sensitive data such as inventory, prescription, and sales records. These can include:
+record_id: Identifier of the changed record.
+table_name: Name of the table where the change occurred.
+operation (String): Operation performed (INSERT, UPDATE, DELETE).
+modified_by (Integer): The employee who performed the operation.
+modification_time (Timestamp): When the operation was performed.
+
+F) Additional Considerations
+Indexes: To optimize querying for fields frequently used in lookups (e.g., pharmacy_id, product_id, customer_id).
+Backups and Recovery: Ensuring regular backups and recovery plans for customer data, inventory, and sales records.
+
+G) Scalability and Distribution
+As the pharmacy chain grows, consider sharding by geographic location or pharmacy ID to distribute the database load.
+This design provides a comprehensive and flexible foundation to manage a pharmacy chain's operations.
+
